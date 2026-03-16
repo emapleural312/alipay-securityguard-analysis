@@ -128,3 +128,61 @@ APK Boot
 5. Data reported: doCommand(13701, [deviceData])
    → Periodically uploaded to server
 ```
+
+## sgmiddletier Complete Component Registry
+
+| Interface | Implementation | Commands | Function |
+|-----------|---------------|----------|----------|
+| IMiddleTierGenericComponent | d.b.a | 70101-70102, 70501-70505, 70701-70902, 71101, 71501 | WUA generation, risk control |
+| IFCComponent | FCComponent | 70504 | Flow Control (HTTP 419/420 handling) |
+| IUnifiedSecurityComponent | d.d.a | — | Unified signing/encryption |
+| ISensorComponent | d.c.a | — | Sensor/behavior data collection |
+| IAVMPSafeTokenComponent | d.a.b | 60401-60402 | Safe token (encrypt/decrypt/sign/OTP) |
+| IAVMPSoftCertComponent | d.a.c | 60201-60206 | Software PKI (CSR/sign/verify/install cert) |
+| IAVMPGenericComponent | d.a.a | 70201-70204 | AVMP bytecode VM execution |
+| SGWindowManager | SGWindowManager | 70602 | Security window overlay |
+
+## Device Fingerprint Collection Map (29 items)
+
+| Index | Data Collected | Privacy Impact |
+|-------|---------------|----------------|
+| 0 | Screen resolution | Low |
+| 1 | DPI density | Low |
+| 2 | Screen size | Low |
+| 3 | Device type (Phone/Tablet/TV) | Low |
+| 4 | CPU architecture | Low |
+| 5 | SIM operator name | Medium |
+| 6 | HTTP proxy detection | Medium (anti-analysis) |
+| 8 | Storage space | Low |
+| 10 | Timezone | Low |
+| 11 | Default font size | Low |
+| 12 | Taobao login nickname | **High** |
+| 13 | App label | Low |
+| 14 | First install time | Medium |
+| 15 | Last update time | Medium |
+| 16-17 | Emulator/root detection flags | Medium (anti-analysis) |
+| 18 | AppKey from SecurityGuard store | Medium |
+| 19 | All requested permissions | Medium |
+| 20 | Installed app list | **High** |
+| 21 | Android system signature hash | Medium |
+| 22 | Global user data | **High** |
+| 23 | MediaDrm device unique ID (Widevine) | **High** (cross-app tracking) |
+| 24 | Build fingerprint | Medium |
+| 25 | Persistent UUID (survives reinstall) | **High** (persistent tracking) |
+| 26 | Audio configuration | Low |
+| 28 | Network info | Medium |
+
+## Anti-Tampering Mechanisms
+
+| Mechanism | Component | Detection Method |
+|-----------|-----------|-----------------|
+| View tree hashing | LifeCycle | Hash all View elements, detect UI overlay |
+| Accessibility monitoring | LifeCycle.c (delegate) | Inject AccessibilityDelegate into clickable views |
+| Behavior broadcast | C0015 | Monitor 22 system events (screen/BT/clipboard/etc) |
+| Method proxy | InvocationHandlerAdapter | Forward all calls via doCommand(20113) |
+| Malware detection | MalDetect | JNI callback OnDetectionJNI(type, name, detail) |
+| Inline hooks | APSE/myhook | Patch function prologues at runtime |
+| Memory protection | APSE/mprotect | Monitor page permission changes |
+| Self-ptrace | APSE | Block debugger attachment |
+| /proc/maps scanning | APSE | Detect Frida/Xposed/Magisk injected libraries |
+| Config-as-JPG | PkgValidUtils | Hide config in res/drawable/abc_wb_textfield_exf.jpg |
