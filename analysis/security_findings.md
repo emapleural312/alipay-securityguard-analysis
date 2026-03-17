@@ -400,3 +400,28 @@ Java: vm.invokeAVMP("sign", byte[].class, args...)
 2. Compile a custom stnel gadget that calls invokeAVMP from native code
 3. Use Xposed framework instead of stnel (full Java-level API access)
 4. Hook at the native C level inside sgmiddletier.so after runtime dump
+
+## stnel Python Bindings Setup
+
+### Location
+- Source: `/Users/anwu/Documents/code/tools/frida/subprojects/stnel-python/`
+- Built binary: `/Users/anwu/Documents/code/tools/frida/build/subprojects/stnel-python/stnel/_stnel/_stnel.abi3.so` (90MB)
+- Version: 17.6.3-dev.0 (matches stnel-server exactly)
+
+### Usage
+```python
+import sys
+sys.path.insert(0, "/Users/anwu/Documents/code/tools/frida/subprojects/stnel-python")
+sys.path.insert(0, "/Users/anwu/Documents/code/tools/frida/build/subprojects/stnel-python")
+import stnel
+
+device = stnel.get_device("emulator-5554")
+session = device.attach(pid)
+script = session.create_script("...", runtime="v8")
+```
+
+### Limitation
+- Python API's `create_script()` does NOT include Java bridge (even with `runtime="v8"`)
+- Java bridge is only injected by stnel CLI (`/opt/homebrew/bin/stnel`)
+- For Java-level hooks, must use stnel CLI with `-l` flag
+- Python API works for native-level Interceptor hooks
