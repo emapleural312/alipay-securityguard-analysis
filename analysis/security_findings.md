@@ -274,3 +274,37 @@ Only heartbeat commands visible without login. Signing/Token/AVMP commands requi
 ### Complete Working Script
 Path: `/Users/anwu/Documents/code/tools/frida/sg_router_hook2.js`
 Covers all 80 known command IDs with human-readable names.
+
+## Dynamic Command Capture: SIGN + TOKEN
+
+### Commands Successfully Triggered
+| Command | Name | Trigger | Result |
+|---------|------|---------|--------|
+| 10401 | SIGN | signRequest(paramCtx, authCode) | SecException (invalid params) |
+| 10602 | STATIC_READ | getStaticDataStoreComp() | 27+ reads during init |
+| 22302 | TOKEN | getUMIDComp().getSecurityToken() | Token: `abiqRO0vVA8DAP7YdykwhzF6` |
+| 70102 | GENERIC | Idle heartbeat | Repeating |
+| 70901 | PERIODIC | Idle check | Repeating |
+
+### UMID Token Captured
+```
+UMID Token: abiqRO0vVA8DAP7YdykwhzF6
+Length: 24 characters (matches UTDID_LENGTH constant in DeviceSecuritySDKImpl)
+```
+
+### Emulator Detection Implementation (MiscUtils.isEmulator)
+Checks the following Build properties:
+1. `BRAND.startsWith("generic")`
+2. `DEVICE.startsWith("generic")`
+3. `FINGERPRINT.startsWith("generic"|"unknown")`
+4. `HARDWARE.contains("goldfish"|"ranchu")`
+5. `MODEL.contains("google_sdk"|"Emulator"|"Android SDK built for x86")`
+6. `MANUFACTURER.contains("Genymotion")`
+7. `PRODUCT.contains("sdk_google"|"google_sdk"|"sdk"|"sdk_x86"|"sdk_gphone64_arm64"|"vbox86p"|"emulator"|"simulator")`
+
+File: `com/alipay/mobile/common/transport/utils/MiscUtils.java:858`
+
+### SecurityGuard Interfaces Confirmed at Runtime
+- `IRootDetectComponent.isRoot()` — single method, in securitybody plugin
+- `ISimulatorDetectComponent.isSimulator()` — single method, in securitybody plugin
+- `ILBSRiskComponent` — 4 methods: init/put/get/clear location data
