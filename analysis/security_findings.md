@@ -202,3 +202,34 @@ All SG SOs confirmed loaded in memory:
 - 46 runtime DEX files in `/data/local/tmp/dumped_dex/`
 - 65 v9000 DEX files in `/data/local/tmp/v9000_dump/`
 - memscan tools and results available
+
+## Dynamic Analysis: doCommandNative Successfully Hooked
+
+### Classloader Discovery
+JNICLibrary found in classloader #6 of 10:
+```
+dalvik.system.PathClassLoader[DexPathList[
+  [zip file "libsgmain.so"],
+  nativeLibraryDirectories=[
+    .../lib/arm64,
+    .../app_SGLib/app_1773709757/main,
+    /system/lib64
+  ]
+]]
+```
+
+### Runtime Command Trace
+Before APSE crash, captured:
+- **70102**: 27 calls (sgmiddletier generic operation — most frequent at idle)
+
+### APSE Anti-Tampering Response
+- Hook triggered SIGSEGV (signal 11, code SEGV_ACCERR)
+- Crash at NativeThread (not main thread — APSE uses dedicated monitoring thread)
+- Fault address in SG memory region
+- APSE detected bytecode modification (JNICLibrary.doCommandNative replaced)
+
+### Bypass Strategy
+To capture all commands without APSE crashing the app:
+1. Hook APSE first to disable its monitoring thread
+2. Or hook at native level (Interceptor.attach on the C function, not Java method)
+3. Or use `Java.registerClass` to create a proxy instead of replacing the method
