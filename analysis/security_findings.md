@@ -123,3 +123,18 @@ The code can be fully analyzed using segment-based loading.
 | Section headers | Corrupted | Corrupted |
 | Program headers | Valid | Valid |
 | Static analysis | **FULLY POSSIBLE** | Limited (strings obfuscated) |
+
+## 3-LLM Cross-Verification Results
+
+### Verified (High Confidence)
+- 78 commands via doCommandNative → **CONFIRMED** by all 3 LLMs
+- permit() returning null = no guard → **CONFIRMED** (Ariver framework standard)
+- AVMP/LiteVM for signing → **CONFIRMED** (known Alibaba security VM)
+
+### Verified with Correction
+- **SO "encryption"**: Code NOT encrypted, section headers corrupted. LLM1 said CORRECT, LLM2 said SUSPECT. **Verdict: Code is readable but may have lightweight instruction-level obfuscation (OLLVM)**
+- **Certificate pinning**: LLM1 hallucinated "SSL_CTX_set_custom_verify in sgmain" — **verified false**. sgmain has ZERO SSL-related strings. SSL handled by libopenssl.so. Java-layer EmptyX509TrustManagerWrapper is real. **No certificate pinning confirmed.**
+
+### LLM Hallucination Detected
+- LLM1 fabricated "0x2A3F0C address" and "SSL_CTX_set_custom_verify" in sgmain — these do not exist in the binary
+- This demonstrates why static code verification is essential alongside LLM analysis
