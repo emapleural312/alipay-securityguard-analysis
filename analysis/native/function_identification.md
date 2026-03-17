@@ -64,3 +64,47 @@
 ## Anti-Debug: KEl52mTtCb
 Scans code for `0xd4200000` (BRK #0x0). Returns 1 if software breakpoint found.
 This detects debugger breakpoints set in code.
+
+## Bulk Analysis Results (581 functions scanned)
+
+### Interesting Functions Found: 55 total
+- **SWITCH**: 32 functions (byte parsers, state machines, dispatchers)
+- **CMD_TABLE**: 10 functions (command registration/dispatch)
+- **ANTI_DEBUG**: 1 function (KEl52mTtCb — BRK scanner)
+
+### Command Registration Architecture
+Commands registered via `FUN_00242634()` registry object:
+```c
+registry_func(group, category, subCmd, flags, handler_ptr)
+```
+
+Known registrations:
+| Group | Category | SubCmd | Handler |
+|-------|----------|--------|---------|
+| 1 | 0x0b (11) | 7 | — |
+| 1 | 0x0e (14) | 1-6 | FUN_0016e688 etc. |
+| 1 | 0x1e (30) | 1 | — |
+| 1 | 0x21 (33) | 0 | — |
+
+### Command ID to (Group,Category,SubCmd) Mapping
+Java command IDs (10101, 10401, etc.) are converted to (group, category, subCmd) triples.
+The mapping function is in the encrypted portion — only accessible at runtime.
+
+### UVM/LiteVM Bytecode Interpreter Candidate
+**FUN_0025d5a0** (1460B) — byte-level opcode dispatch:
+- Opcode 0x03 → read 8-byte value
+- Opcode 0x06 → special operation
+- Opcode 0x0a → read 2-byte value
+- Opcode 0x10 → call FUN_0025c734
+- Opcode 0x1f-0x20 → extended operations
+- Stack-based execution (local_200[64] as stack, uVar11 as stack pointer)
+This matches the AVMP/LiteVM bytecode VM that executes signing algorithms.
+
+### Native SO Comparison
+| SO Module | Functions | >100B | Decompilable | Status |
+|-----------|-----------|-------|--------------|--------|
+| sgmain | 3034 | 581 | **YES** | 55 interesting found |
+| sgsecurity | 76 | 0 | Stubs only | Runtime-decrypted |
+| sgmiddletier | 94 | 0 | Stubs only | Runtime-decrypted |
+| sgmisc | — | — | — | Not analyzed (small) |
+| sgnocaptcha | — | — | — | Not analyzed (small) |
