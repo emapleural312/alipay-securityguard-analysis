@@ -18,7 +18,13 @@ Through continued reverse engineering of Alipay's embedded SecurityGuard SDK, I 
 
 ### Description
 
-The application ships with a class `EmptyX509TrustManagerWrapper` that implements `X509TrustManager` with a **completely empty** `checkServerTrusted()` method. When this trust manager is active, the application accepts **any** server certificate without validation, enabling trivial man-in-the-middle attacks on all TLS connections.
+The application's TLS implementation lacks certificate pinning and contains a remotely-degradable trust manager architecture:
+
+1. **No Certificate Pinning**: The production trust manager (`X509TrustManagerWrapper`, instantiated by `X509TrustManagerFactory.getX509TrustManager()`) validates server certificates only against the system CA store via `TrustManagerFactory.getDefaultAlgorithm()`. No certificate pinning or custom CA validation is implemented. Any CA-signed certificate is accepted.
+
+2. **Remote Degradation Capability**: The trust manager hierarchy includes `EmptyX509TrustManagerWrapper` (base class) with a completely empty `checkServerTrusted()` method. The production wrapper's override contains a `ChangeQuickRedirect`/PatchProxy hot-patch field that, when activated, can bypass the system CA validation entirely — effectively reverting to the base class's accept-all behavior without an app store update.
+
+3. **Architecture**: `X509TrustManagerWrapper extends EmptyX509TrustManagerWrapper`. Both classes ship in production (classes10.dex). The PatchProxy mechanism is present on all certificate validation methods.
 
 ### Technical Evidence
 
@@ -56,8 +62,9 @@ The production wrapper (`X509TrustManagerWrapper`) overrides `checkServerTrusted
 
 ### Impact
 
-- **MITM attack:** An attacker on the same network can intercept all HTTPS traffic by presenting a proxy CA certificate (which the system CA store accepts) or by triggering the Empty trust manager code path
-- **Remote degradation:** The PatchProxy mechanism allows the vendor to silently disable certificate validation across all installed instances without user consent or app store review
+- **MITM via proxy CA:** An attacker with network position can present a proxy CA certificate. Since the app relies solely on the system CA store (no pinning), the proxy certificate is accepted. All HTTPS traffic becomes interceptable.
+- **Remote degradation to accept-all:** The vendor can remotely activate PatchProxy to switch `X509TrustManagerWrapper.checkServerTrusted()` behavior, potentially reverting to the `EmptyX509TrustManagerWrapper` base class's no-validation logic. This requires no app store update and no user consent.
+- **Production code path verified:** `X509TrustManagerFactory.getX509TrustManager()` creates `new X509TrustManagerWrapper()` — confirmed as the production TLS trust manager. The class hierarchy and PatchProxy fields are active in shipping code.
 - **Affected users:** 1+ billion (Alipay's reported user base)
 
 ### CVSS 3.1 Assessment
@@ -119,10 +126,10 @@ The signature depends on device-bound values (utdid, device ID) and request-spec
 
 ### CVSS 3.1 Assessment
 
-**Vector:** AV:L/AC:L/PR:H/UI:N/S:C/C:N/I:H/A:N
-**Score:** 6.3 (Medium)
+**Vector:** AV:L/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:N
+**Score:** 7.7 (High)
 
-Local access with high privileges (root) is required, but the scope changes because the impact extends to the server-side authentication system. Integrity impact is High because the attacker can forge authenticated requests.
+Local access with high privileges (root) is required, but the scope changes because the impact extends to the server-side authentication system. Integrity impact is High because the attacker can forge authenticated requests. Confidentiality impact is High because forged requests can retrieve sensitive user data (transaction history, personal information, account details) from the server.
 
 ---
 
