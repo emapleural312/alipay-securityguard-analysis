@@ -355,3 +355,29 @@ Contains encrypted device/session fingerprint data.
 | 22302 | TOKEN | 1 | `abiqRO0vVA8DAP7YdykwhzF6` |
 | 70102 | GENERIC | many | `x-sgext=JBIc...` |
 | 70901 | PERIODIC | many | `10000` (interval ms) |
+
+## AVMP Virtual Machine: Instance Created Successfully
+
+### doCommand(70201) — Create VM
+```
+Input: ["mwua", "sgcipher"]
+Output: -5476376623598933845 (Long, VM instance ID)
+```
+VM instance successfully created in emulator environment.
+This confirms the AVMP/LiteVM bytecode engine is functional.
+
+### doCommand(70202) — Invoke VM Method
+Not yet successful due to JS↔Java Long type conversion issue.
+The VM ID (Long) needs to be passed correctly to the native dispatcher.
+
+### Architecture Confirmed
+```
+Java: avmp.createAVMPInstance("mwua", "sgcipher")
+  → doCommand(70201, ["mwua", "sgcipher"])
+  → Native: sgmiddletier allocates VM, returns Long ID
+  
+Java: vm.invokeAVMP("sign", byte[].class, args...)
+  → doCommand(70202, [vmId, "sign", retType, argsArray])
+  → Native: sgmiddletier dispatches to AVMP bytecode interpreter
+  → Returns: opaque signature bytes
+```
