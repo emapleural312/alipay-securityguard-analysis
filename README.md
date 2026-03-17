@@ -1,144 +1,177 @@
-# ***pay SecurityGuard Reverse Engineering Toolkit
+# Alipay SecurityGuard SDK — Complete Security Analysis
 
-> Comprehensive static analysis toolkit for ***baba/***Group's SecurityGuard SDK — the security framework protecting ***pay and other ***baba ecosystem apps.
+> **Disclaimer**: This research is conducted for educational and security research purposes only. The author assumes no liability for any direct or indirect damages arising from the use of information in this repository. All trademarks are property of their respective owners. Findings were reported to the vendor via responsible disclosure.
 
-## Overview
+## Executive Summary
 
-SecurityGuard is a multi-layered security SDK embedded in a major Chinese mobile payment app that provides:
+A comprehensive reverse engineering analysis of the SecurityGuard SDK embedded in Alipay (v10.8.30.8000), revealing the complete internal architecture of the security framework protecting one of the world's largest mobile payment applications (1B+ users).
 
-- **Request signing** via AVMP bytecode virtual machine
-- **Data encryption** using SM4 (Chinese national cipher) and AES
-- **Device fingerprinting** for risk control
-- **Anti-tampering** via APSE/BlueShield inline hooks
-- **Certificate management** with GM-TLS (Chinese national crypto TLS)
-- **Encrypted storage** via SQLCipher
+**Key achievements:**
+- Mapped all ~80 native commands through the single JNI entry point
+- Captured AVMP bytecode VM signatures via custom C gadget
+- Reversed 3 XOR-based string encryption variants
+- Documented 22 hidden behavior monitoring events
+- Identified 29-point device super-fingerprinting
+- Confirmed absence of certificate pinning
+- Analyzed PatchProxy remote code modification capability
 
-This project documents the complete architecture discovered through static reverse engineering of ***pay APK v10.8.30.8000.
+## CVE References
+
+| CVE | Vulnerability | CWE | CVSS |
+|-----|--------------|-----|------|
+| Pending (MITRE #2005801) | DeepLink URL Scheme Access Control Bypass | CWE-939 | 9.1 |
+| Pending | ds.alipay.com Open Redirect Whitelist Bypass | CWE-601+CWE-939 | 9.3 |
+| Pending | iOS tradePay Unauthorized Payment Invocation | CWE-940 | 8.6 |
+| Pending | End-to-End Data Exfiltration Chain | CWE-200 | 8.6 |
+| Pending | UI Spoofing via showToast/setTitle | CWE-451 | 8.1 |
+| Pending | iOS Silent GPS Location Exfiltration | CWE-359 | 7.4 |
+| Pending | No Certificate Pinning + Remote Degradation | CWE-295 | 7.4 |
+| Pending | AVMP Signature Capture-Replay | CWE-294 | 7.7 |
 
 ## Architecture
 
 ```
 SecurityGuard SDK
-├── sgmain (Main Plugin)
-│   ├── SecurityGuardMainPlugin.java — Entry point
-│   ├── JNICLibrary.doCommandNative(int, Object...) — Single JNI entry
-│   ├── IRouterComponent — Command routing to Native
-│   └── libsgmainso-6.6.230507.so — Self-modifying ELF (encrypted)
-├── sgsecurity (Security Body)
-│   ├── SecurityGuardSecurityBodyPlugin.java — Entry point
-│   ├── UMIDComponent — Unique Mobile ID generation
-│   ├── DeviceInfoCapturerFull — Device fingerprint collection
-│   └── libsgsecuritybodyso-6.6.230507.so — Encrypted strings
-├── APSE (Application Protection Security Engine)
-│   ├── libAPSE_1.9.41.so
-│   ├── BlueShield anti-tampering framework
+├── sgmain — Core plugin, single JNI entry: doCommandNative(int, Object...)
+│   ├── ~80 command IDs routing to 12+ security interfaces
+│   ├── AVMP/LiteVM bytecode virtual machine for request signing
+│   ├── SM4 (Chinese national cipher) for RPC encryption
+│   ├── Static key management via SharedPreferences
+│   └── Self-protecting ELF with corrupted section headers
+├── sgsecurity — Device security body
+│   ├── 29-item device fingerprinting (IMEI, OAID, WiFi MAC, MediaDrm...)
+│   ├── UMID persistent cross-install device ID
+│   └── Encrypted strings (nearly all obfuscated)
+├── sgmiddletier — Middle tier
+│   ├── AVMP VM instance management (create/invoke/destroy)
+│   ├── WUA device proof generation
+│   └── OTP generation
+├── APSE/BlueShield — Anti-tampering
 │   ├── myhook inline hook engine
-│   └── Device integrity checking (d4checkup)
-├── Network Layer
-│   ├── SM4 content encryption (Sm4Client.java)
-│   ├── AVMP bytecode signing (InnerSignImpl.java)
-│   ├── EmptyX509TrustManagerWrapper — NO certificate pinning!
-│   └── GM-TLS mutual authentication (GmStrategy.java)
-└── Storage
-    └── SQLCipher encrypted database
+│   ├── ptrace anti-debug
+│   ├── /proc/maps scanning (Frida/Xposed detection)
+│   └── mprotect memory protection
+└── Network Layer
+    ├── EmptyX509TrustManagerWrapper — NO certificate pinning
+    ├── PatchProxy/ChangeQuickRedirect on ALL security methods
+    ├── SM4 content encryption (via SecurityGuard commands)
+    └── AVMP signature tokens (x-sign HTTP header)
 ```
 
-## Native Command ID Map
+## Key Findings
 
-All SecurityGuard functionality is routed through a single JNI function:
-```java
-public static native Object doCommandNative(int commandId, Object... args);
+### 1. AVMP Signature Bypass (C Gadget)
+
+The AVMP bytecode VM — Alipay's last line of defense for request authentication — can be invoked programmatically via a 132-line C gadget operating at the JNI level:
+
+```c
+// Create VM instance
+jobject vmIdObj = (*env)->CallObjectMethod(env, router, doCmd, 70201, args);
+// Execute signing
+jobject result = (*env)->CallObjectMethod(env, router, doCmd, 70202, outerArgs);
 ```
 
-| Command ID | Component | Function |
-|-----------|-----------|----------|
-| 10101 | Init | Device registration / SDK init |
-| 10401 | SecureSignature | **Request signing** |
-| 10501 | DynamicDataEncrypt | Dynamic data encrypt/decrypt |
-| 10502-10503 | DynamicDataStore | Dynamic data storage |
-| 10601 | StaticDataEncrypt | **Static data encryption** |
-| 10602-10604 | StaticDataStore | Static data storage |
-| 10605 | StaticKeyEncrypt | **Static key encryption** |
-| 10901 | DataCollection | Data collection control |
-| 11601 | OpenSDK | OpenSDK operations |
-| 11901 | AtlasEncrypt | Atlas bundle encryption |
-| 12101-12102 | SafeToken | **Security token generation** |
-| 12501 | LiteVM | **Create AVMP VM instance** |
-| 12502 | LiteVM | Reload AVMP bytecode |
-| 12503 | LiteVM | Destroy AVMP VM instance |
-| 12504 | LiteVM | **Execute AVMP method** (signing entry) |
-| 12605/12611 | EdgeComputing | Edge computing tasks |
-| 12801 | Compat | Compatibility layer |
-| 13701-13702 | DataReport | Device info reporting |
+The gadget bypasses Frida's JS-JNI serialization limitation by passing `byte[].class` directly as a JNI object. Full source: [`tools/sg_avmp_gadget.c`](tools/sg_avmp_gadget.c)
 
-## Key Security Findings
+### 2. No Certificate Pinning
 
-### 1. No Certificate Pinning
-`EmptyX509TrustManagerWrapper` accepts all certificates. System CA validation only via `X509TrustManagerWrapper`. MITM is possible with user-installed proxy CA.
+`EmptyX509TrustManagerWrapper.checkServerTrusted()` is an empty method. The production `X509TrustManagerWrapper` only validates against system CA store. PatchProxy can remotely degrade to accept-all behavior.
 
-### 2. PatchProxy Pervasive Bypass
-Every security-sensitive method contains `ChangeQuickRedirect` + `PatchProxy.proxy()` hooks. The server can remotely override ANY security check via hot-patch without app update.
+### 3. Behavior Monitoring (22 Events)
 
-### 3. Self-Modifying ELF
-`libsgmainso-6.6.230507.so` has no exports, no imports, corrupted section headers. The SO decrypts itself at runtime — static analysis requires runtime memory dump.
+SecurityGuard silently monitors: screen on/off, app foreground/background, airplane mode, time changes, screenshots, screen recording, Bluetooth connections, phone calls, headphone state, clipboard access, network changes, and all Activity lifecycle events.
 
-### 4. AVMP Virtual Machine
-Request signing runs inside an opaque bytecode VM ("mwua"/"sgcipher"). The signing algorithm is not in Java or standard ARM code — it's in custom AVMP bytecode executed by the LiteVM engine in native code.
+### 4. DexAOP Audio API Interception (14 Points)
 
-### 5. SM4 National Cipher
-Chinese national SM4 cipher used for RPC body encryption, with native implementation.
+All `AudioRecord` and `MediaRecorder` API calls are intercepted at bytecode level via DexAOP, monitoring when any app component accesses the microphone.
 
-## Tools
+### 5. permit() = null Anti-Pattern
 
-### `scripts/sg_unpack.sh`
-Unpacks SecurityGuard ZIP modules from APK.
+Multiple sensitive JSBridge extensions return `null` from `permit()`, which in the Ariver framework means **no security check is performed**:
+- `TradePayBridgeExtension` — payment operations
+- `H5LocationExtension` — GPS access
+- `WalletUserInfoExtension` — user data
+- `TitleBarBridgeExtension` / `ToastBridgeExtension` — UI spoofing
 
-### `scripts/sg_command_trace.sh`
-Traces all doCommandNative calls in decompiled Java code.
+### 6. PatchProxy Remote Code Modification
 
-### `scripts/so_string_extract.sh`
-Extracts and categorizes security-relevant strings from native SO files.
+Every security-critical method contains a `ChangeQuickRedirect` field that allows the vendor to remotely modify method behavior via hot-patching — without app store review or user consent.
 
-### `scripts/version_diff.sh`
-Binary-diffs native security functions between APK versions.
+## Verification
 
-## Usage
+All findings underwent **3-LLM cross-verification** (Claude Opus 4.6 + Sonnet 4.6 + Gemini 2.5 Pro):
+- **21/23** claims verified TRUE against source code
+- **2/23** SUSPECT (signing output byte count lacks preserved raw evidence)
+- **0/23** FALSE
+
+## Responsible Disclosure Timeline
+
+| Date | Event |
+|------|-------|
+| 2026-02-16 | Security analysis begins |
+| 2026-03-07 | 17 vulnerabilities reported to vendor (Ant Group) |
+| 2026-03-10 | Vendor response: "normal functionality" |
+| 2026-03-11 | Public disclosure at innora.ai/zfb/ |
+| 2026-03-11 | Vendor's law firm files takedown complaint (4 hours later) |
+| 2026-03-12 | 6 CVEs submitted to MITRE (Ticket #2005801) |
+| 2026-03-12 | 189 notifications sent to global regulators |
+| 2026-03-15 | 4 WeChat articles force-deleted via legal pressure |
+| 2026-03-17 | SecurityGuard SDK reverse engineering completed |
+| 2026-03-17 | 2 additional CVEs submitted (cert validation + AVMP replay) |
+
+## Vendor Suppression Pattern
+
+1. **Verbal denial** — "normal functionality"
+2. **Legal threats** — Beijing Geyun Law Firm takedown complaints
+3. **Technical countermeasures** — Server-side PoC blocking (API returns mock data)
+4. **Platform censorship** — 4 WeChat articles deleted citing "Cybersecurity Law"
+
+## Global Regulatory Response
+
+38+ institutions across 22 countries responded, including:
+- **MITRE**: 8 CVEs under review (Ticket #2005801)
+- **Apple Product Security**: iOS investigation (Case OE01052449093014)
+- **Google Play**: Policy violation review (#9-7515000040640)
+- **Packet Storm Security**: Advisory #217089 published
+- **CSSF Luxembourg**: Whistleblowing case CSSFWB-2026-080
+- **HKMA Hong Kong**: Complaint CE20260313175412
+- **FCA UK**: Whistleblowing team acknowledged
+
+## Related Resources
+
+- **Full vulnerability report**: [innora.ai/zfb/](https://innora.ai/zfb/)
+- **Censorship documentation**: [innora.ai/zfb/article_censorship.html](https://innora.ai/zfb/article_censorship.html)
+- **Packet Storm Advisory**: [#217089](https://packetstormsecurity.com/files/id/217089)
+- **Independent reproduction**: [cxxsheng (GitHub)](https://github.com/nickcxxsheng) confirmed PoC
+
+## Reproduction
 
 ```bash
-# 1. Unpack SecurityGuard modules
-./scripts/sg_unpack.sh /path/to/***pay.apk
+# 1. Obtain APK (v10.8.30.8000 from APKPure)
+# 2. Extract SecurityGuard modules
+unzip Alipay.apk "lib/arm64-v8a/libsg*.so" -d sg_unpacked/
+unzip Alipay.apk "lib/arm64-v8a/libAPSE*" -d sg_unpacked/
 
-# 2. Decompile with jadx
-./scripts/sg_decompile.sh
+# 3. Decompile Java layer
+jadx --show-bad-code -d sg_decompiled/ sg_unpacked/modules/sgmain/classes.dex
 
-# 3. Extract native strings
-./scripts/so_string_extract.sh
+# 4. Analyze native code (segment-based loading for corrupted headers)
+r2 -e bin.segments=true sg_unpacked/native_libs/libsgmainso-6.6.230507.so
 
-# 4. Map command IDs
-./scripts/sg_command_trace.sh
-
-# 5. Compare versions
-./scripts/version_diff.sh /path/to/v8000.apk /path/to/v9000.apk
+# 5. Dynamic analysis (requires rooted device + Frida/stnel)
+# See tools/sg_avmp_gadget.c for AVMP signature capture
 ```
-
-## Related CVEs
-
-- **CVE-2026-XXXXX**: 6 CVEs submitted to MITRE (Ticket #2005801)
-  - DeepLink URL Scheme Bypass (CWE-939)
-  - GPS Silent Exfiltration (CWE-359)
-  - Unauthorized Payment Invocation (CWE-940)
-  - UI Spoofing (CWE-451)
-  - End-to-End Data Exfiltration (CWE-200)
-  - Open Redirect Whitelist Bypass (CWE-601)
-
-## Disclaimer
-
-This research is conducted for authorized security testing and responsible disclosure purposes. All findings have been reported to the vendor (***Group) and relevant regulatory authorities.
-
-## Author
-
-Jiqiang Feng — [Innora AI Security Research](https://innora.ai)
 
 ## License
 
-MIT
+GPLv3 — See [LICENSE](LICENSE) for details.
+
+## Author
+
+**Jiqiang Feng** — Innora AI Security Research
+- Email: feng@innora.ai
+- Web: [innora.ai](https://innora.ai)
+
+---
+
+*This research demonstrates that security through obscurity is not security. The complete SecurityGuard architecture was reversed through standard static analysis techniques, proving that client-side security controls alone cannot protect a payment application.*

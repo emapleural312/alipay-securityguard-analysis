@@ -1,17 +1,28 @@
-# Binary files - don't commit to git
-*.so
-*.dex
-*.apk
-*.zip
-*.arsc
+# Decompiled source code (copyright — Ant Group)
+sg_decompiled/
 
-# Keep module structure but not binaries
-sg_unpacked/modules/*/lib/
-sg_unpacked/modules/*/classes.dex
-sg_unpacked/modules/*/resources.arsc
-sg_unpacked/raw/
-sg_unpacked/native_libs/
+# Original binaries (copyright — Ant Group)
+sg_unpacked/
+
+# Internal planning/LLM discussions
+.planning/
+
+# Compiled binaries (keep source only)
+*.so
+!tools/sg_avmp_gadget.c
+
+# Evidence with device-specific info
+evidence/avmp_capture_*.log
 
 # OS files
 .DS_Store
 *.swp
+*~
+
+# APK files
+*.apk
+*.dex
+
+# Large Ghidra pseudocode dumps
+analysis/native/sgmain_55_interesting_functions.c
+analysis/native/sgmain_top20_decompiled.c
