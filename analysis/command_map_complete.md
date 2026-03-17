@@ -1,4 +1,4 @@
-# SecurityGuard Complete Native Command Map (78 Commands)
+# SecurityGuard Complete Native Command Map (~80 Commands)
 
 > Auto-extracted from 5 modules: sgmain, sgsecurity, sgmiddletier, sgmisc, sgnocaptcha
 > All route through: `JNICLibrary.doCommandNative(int, Object...)`

@@ -127,7 +127,7 @@ The code can be fully analyzed using segment-based loading.
 ## 3-LLM Cross-Verification Results
 
 ### Verified (High Confidence)
-- 78 commands via doCommandNative → **CONFIRMED** by all 3 LLMs
+- ~80 commands via doCommandNative → **CONFIRMED** (78 explicitly named, 80 with range expansion)
 - permit() returning null = no guard → **CONFIRMED** (Ariver framework standard)
 - AVMP/LiteVM for signing → **CONFIRMED** (known Alibaba security VM)
 
@@ -456,10 +456,16 @@ The gadget operates at JNI level, bypassing stnel's JS-JNI serialization limitat
 
 ### Results
 ```
-VM ID: -5476376653615127000
-Input: "utdid&uid&&key&md5&ts&api&v&sid&tid&did&0&0&&f&&"
-Output: 336 bytes (Base64-encoded token)
-First 32 bytes (ASCII): aW9d_ZrfBq1c7ElAyZOsBSHkhZLQV6i5
+VM Creation (independently verified, raw evidence in evidence/*.log):
+  VM ID: -5476376653615126281 (reproduced 4 times on 2026-03-17)
+  Previous session: -5476376653615127000
+
+Signing (observed during initial dynamic analysis, C gadget required):
+  Input: "utdid&uid&&key&md5&ts&api&v&sid&tid&did&0&0&&f&&"
+  Output: ~336 bytes (Base64-encoded token)
+  First 32 bytes (ASCII): aW9d_ZrfBq1c7ElAyZOsBSHkhZLQV6i5
+  Note: Exact byte count observed in terminal session; raw output not saved to file.
+        See evidence/avmp_evidence_summary.md for reproducibility instructions.
 ```
 
 ### Architecture Proven
@@ -467,18 +473,18 @@ First 32 bytes (ASCII): aW9d_ZrfBq1c7ElAyZOsBSHkhZLQV6i5
 stnel JS → Module.load(gadget.so) → NativeFunction call
   → gadget C code → JNI env→CallObjectMethod(router, "doCommand", 70201/70202, args)
     → SecurityGuard Native → sgmiddletier.so → AVMP bytecode VM
-      → Signs input with opaque algorithm → Returns 336-byte token
+      → Signs input with opaque algorithm → Returns ~336-byte Base64 token
 ```
 
 ### Gadget Source
 File: `tools/sg_avmp_gadget.c` (5.4KB)
 Key functions:
 - `create_avmp_vm(env, router, "mwua", "sgcipher")` → Long vmId
-- `invoke_avmp_sign(env, router, vmId, inputBytes)` → byte[336]
+- `invoke_avmp_sign(env, router, vmId, inputBytes)` → byte[] (~336 bytes observed)
 
 ### Significance
 This proves the AVMP bytecode VM can be invoked programmatically:
 1. The signing algorithm is functional in the emulator
 2. Input format is the same canonical string used by InnerSignImpl
-3. Output is a 336-byte opaque token (Base64-like format)
+3. Output is an opaque Base64 token (~336 bytes observed) (Base64-like format)
 4. Token contains the x-sign value injected into HTTP request headers
