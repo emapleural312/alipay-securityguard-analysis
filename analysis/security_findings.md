@@ -233,3 +233,19 @@ To capture all commands without APSE crashing the app:
 1. Hook APSE first to disable its monitoring thread
 2. Or hook at native level (Interceptor.attach on the C function, not Java method)
 3. Or use `Java.registerClass` to create a proxy instead of replacing the method
+
+## Runtime Analysis: 0 Exports, 0 Symbols Confirmed
+
+All SG native SOs have **zero exports and zero symbols** at runtime:
+- sgmain: 0 exports, 0 symbols (2.4MB code)
+- sgsecurity: 0 exports, 0 symbols (1.9MB code)
+- sgmiddletier: 0 exports, 0 symbols (1.1MB code)
+
+JNI methods registered via `art::JNI::RegisterNatives` at startup.
+`RegisterNatives` successfully hooked at `_ZN3art3JNIILb0EE15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi`
+but registration already completed before attach (need spawn mode).
+
+### doCommandNative Successfully Intercepted
+- Found in classloader #6 (PathClassLoader loading from libsgmain.so ZIP)
+- 27x command 70102 captured before APSE killed process
+- APSE response time: ~200ms (detects Java-level bytecode modification)
