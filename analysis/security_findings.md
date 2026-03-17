@@ -447,3 +447,38 @@ This is a **tooling limitation**, not a SecurityGuard protection.
 1. Build a custom stnel gadget (.so) that calls invokeAVMP from C/JNI
 2. Or use Xposed framework (full Java API, no JS-JNI serialization issues)
 3. Or patch stnel's bridges/java.js to handle Class objects in arrays
+
+## *** AVMP SIGNATURE SUCCESSFULLY CAPTURED ***
+
+### Method: Custom C Gadget (sg_avmp_gadget.so)
+Built with Android NDK, loaded into target process via stnel `Module.load()`.
+The gadget operates at JNI level, bypassing stnel's JS-JNI serialization limitation.
+
+### Results
+```
+VM ID: -5476376653615127000
+Input: "utdid&uid&&key&md5&ts&api&v&sid&tid&did&0&0&&f&&"
+Output: 336 bytes (Base64-encoded token)
+First 32 bytes (ASCII): aW9d_ZrfBq1c7ElAyZOsBSHkhZLQV6i5
+```
+
+### Architecture Proven
+```
+stnel JS → Module.load(gadget.so) → NativeFunction call
+  → gadget C code → JNI env→CallObjectMethod(router, "doCommand", 70201/70202, args)
+    → SecurityGuard Native → sgmiddletier.so → AVMP bytecode VM
+      → Signs input with opaque algorithm → Returns 336-byte token
+```
+
+### Gadget Source
+File: `tools/sg_avmp_gadget.c` (5.4KB)
+Key functions:
+- `create_avmp_vm(env, router, "mwua", "sgcipher")` → Long vmId
+- `invoke_avmp_sign(env, router, vmId, inputBytes)` → byte[336]
+
+### Significance
+This proves the AVMP bytecode VM can be invoked programmatically:
+1. The signing algorithm is functional in the emulator
+2. Input format is the same canonical string used by InnerSignImpl
+3. Output is a 336-byte opaque token (Base64-like format)
+4. Token contains the x-sign value injected into HTTP request headers
