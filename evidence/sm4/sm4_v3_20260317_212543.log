@@ -1,6 +1,0 @@
-[SM4v3] === Comprehensive SM4 Capture ===
-[SM4v3] SecurityUtil hooked!
-[SM4v3] SPUtility2 not in default CL, trying SG loader...
-[SM4v3] SPUtility2 hooked via SG loader!
-[SM4v3] doCommandNative hooked!
-[SM4v3] All hooks ready. Generating traffic...

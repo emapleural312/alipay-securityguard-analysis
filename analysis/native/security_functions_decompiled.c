@@ -1,3 +1,11 @@
+// ============================================================================
+// FAIR USE NOTICE — Security Research
+// This file contains machine-generated pseudocode produced by Ghidra/radare2
+// decompilation of native binary code. It is NOT original source code.
+// Included solely for the purpose of documenting security vulnerabilities
+// affecting 1B+ users, under DMCA §1201(j) and EU Directive 2009/24/EC Art.6.
+// Original binary copyright: Ant Group Co., Ltd.
+// ============================================================================
 // === FUN_001589f4 @ 001589f4 (4276 bytes) [cookie_sm4_init] ===
 
 /* WARNING: Globals starting with '_' overlap smaller symbols at the same address */

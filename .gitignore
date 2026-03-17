@@ -11,8 +11,12 @@ sg_unpacked/
 *.so
 !tools/sg_avmp_gadget.c
 
-# Evidence with device-specific info
+# Raw capture logs (device-specific, keep summaries only)
 evidence/avmp_capture_*.log
+evidence/sm4/*.log
+
+# Claude Code worktrees
+.claude/
 
 # OS files
 .DS_Store

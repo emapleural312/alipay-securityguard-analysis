@@ -17,16 +17,19 @@ A comprehensive reverse engineering analysis of the SecurityGuard SDK embedded i
 
 ## CVE References
 
-| CVE | Vulnerability | CWE | CVSS |
-|-----|--------------|-----|------|
-| Pending (MITRE #2005801) | DeepLink URL Scheme Access Control Bypass | CWE-939 | 9.1 |
-| Pending | ds.alipay.com Open Redirect Whitelist Bypass | CWE-601+CWE-939 | 9.3 |
-| Pending | iOS tradePay Unauthorized Payment Invocation | CWE-940 | 8.6 |
-| Pending | End-to-End Data Exfiltration Chain | CWE-200 | 8.6 |
-| Pending | UI Spoofing via showToast/setTitle | CWE-451 | 8.1 |
-| Pending | iOS Silent GPS Location Exfiltration | CWE-359 | 7.4 |
-| Pending | No Certificate Pinning + Remote Degradation | CWE-295 | 7.4 |
-| Pending | AVMP Signature Capture-Replay | CWE-294 | 7.7 |
+9 CVEs submitted to MITRE (Ticket #2005801), pending assignment:
+
+| # | Vulnerability | CWE | CVSS |
+|---|--------------|-----|------|
+| CVE-1 | DeepLink URL Scheme Access Control Bypass — 396/408 (97%) JSBridge APIs unprotected | CWE-939 | 9.1 |
+| CVE-2 | iOS Silent GPS Location Exfiltration | CWE-359 | 7.4 |
+| CVE-3 | iOS tradePay Unauthorized Payment Invocation | CWE-940 | 8.6 |
+| CVE-4 | UI Spoofing via showToast/setTitle | CWE-451 | 8.1 |
+| CVE-5 | End-to-End Data Exfiltration Chain | CWE-200 | 8.6 |
+| CVE-6 | ds.alipay.com Open Redirect Whitelist Bypass | CWE-601+CWE-939 | 9.3 |
+| CVE-7 | No Certificate Pinning (EmptyX509TrustManagerWrapper) | CWE-295 | 7.4 |
+| CVE-8 | AVMP Signature Capture-Replay | CWE-294 | 7.7 |
+| CVE-9 | SchemeNeedVerify Opt-In Design Flaw + Insecure Config Transport | CWE-863+CWE-319 | 8.6 |
 
 ## Architecture
 
@@ -85,15 +88,30 @@ SecurityGuard silently monitors: screen on/off, app foreground/background, airpl
 
 All `AudioRecord` and `MediaRecorder` API calls are intercepted at bytecode level via DexAOP, monitoring when any app component accesses the microphone.
 
-### 5. permit() = null Anti-Pattern
+### 5. permit() = null Anti-Pattern (396/408 = 97%)
 
-Multiple sensitive JSBridge extensions return `null` from `permit()`, which in the Ariver framework means **no security check is performed**:
-- `TradePayBridgeExtension` — payment operations
-- `H5LocationExtension` — GPS access
-- `WalletUserInfoExtension` — user data
-- `TitleBarBridgeExtension` / `ToastBridgeExtension` — UI spoofing
+A comprehensive scan of ALL 408 `BridgeExtension` classes reveals **396 (97.1%) return null from `permit()`**, meaning virtually the entire JSBridge API surface operates without access control:
 
-### 6. PatchProxy Remote Code Modification
+```
+Total BridgeExtension classes with permit(): 408
+Classes where permit() returns null:         396 (97.1%)
+Classes with actual permission checks:        12 (2.9%)
+```
+
+High-risk unprotected categories include:
+- **Payment** (6): TradePayBridgeExtension, DCEPWalletBridgeExtension (Digital Yuan!)
+- **Authentication** (5): LoginExtension, VerifyIdentityBridgeExtension
+- **NFC/Contactless** (3): NFCBridgeExtension, NfcPayExtension
+- **Device Hardware** (6): ScanBridgeExtension, ClipboardBridgeExtension
+- **File Operations** (6): FileBridgeExtension, UploadFileBridgeExtension
+
+See [`analysis/permit_null_full_scan.md`](analysis/permit_null_full_scan.md) for full results.
+
+### 6. SchemeNeedVerify Opt-In Design Flaw (CVE-9)
+
+The `SchemeNeedVerify` security gate uses an **opt-in model** — verification must be explicitly enabled per-API. The vast majority of APIs are unprotected by default. Combined with insecure plaintext HTTP transport of security configurations, this creates a systemic architectural vulnerability.
+
+### 7. PatchProxy Remote Code Modification
 
 Every security-critical method contains a `ChangeQuickRedirect` field that allows the vendor to remotely modify method behavior via hot-patching — without app store review or user consent.
 
@@ -116,8 +134,11 @@ All findings underwent **3-LLM cross-verification** (Claude Opus 4.6 + Sonnet 4.
 | 2026-03-12 | 6 CVEs submitted to MITRE (Ticket #2005801) |
 | 2026-03-12 | 189 notifications sent to global regulators |
 | 2026-03-15 | 4 WeChat articles force-deleted via legal pressure |
+| 2026-03-15 | All 4 WeChat articles force-deleted via law firm complaint |
+| 2026-03-15 | Server-side PoC blocking confirmed (API returns blank/mock data) |
 | 2026-03-17 | SecurityGuard SDK reverse engineering completed |
-| 2026-03-17 | 2 additional CVEs submitted (cert validation + AVMP replay) |
+| 2026-03-17 | 3 additional CVEs submitted: cert validation, AVMP replay, opt-in design flaw |
+| 2026-03-17 | permit() scan: 396/408 (97%) JSBridge APIs have no permission check |
 
 ## Vendor Suppression Pattern
 
@@ -129,7 +150,7 @@ All findings underwent **3-LLM cross-verification** (Claude Opus 4.6 + Sonnet 4.
 ## Global Regulatory Response
 
 38+ institutions across 22 countries responded, including:
-- **MITRE**: 8 CVEs under review (Ticket #2005801)
+- **MITRE**: 9 CVEs under review (Ticket #2005801)
 - **Apple Product Security**: iOS investigation (Case OE01052449093014)
 - **Google Play**: Policy violation review (#9-7515000040640)
 - **Packet Storm Security**: Advisory #217089 published
@@ -175,3 +196,9 @@ GPLv3 — See [LICENSE](LICENSE) for details.
 ---
 
 *This research demonstrates that security through obscurity is not security. The complete SecurityGuard architecture was reversed through standard static analysis techniques, proving that client-side security controls alone cannot protect a payment application.*
+
+## Legal Notice
+
+This repository contains **original security research analysis** and **machine-generated pseudocode** (via Ghidra/radare2 decompilation). It does NOT contain original source code, copyrighted binaries, or trade secrets. The decompiled pseudocode is included under security research fair use (DMCA §1201(j), EU Directive 2009/24/EC Art. 6) for the purpose of identifying and documenting security vulnerabilities affecting over 1 billion users.
+
+No original APK, DEX, or SO files are included in this repository.

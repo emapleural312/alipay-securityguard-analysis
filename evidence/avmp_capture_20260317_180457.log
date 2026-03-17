@@ -1,5 +1,0 @@
-[EVIDENCE] === AVMP via C Gadget ===
-[EVIDENCE] Timestamp: 2026-03-17T10:05:22.784Z
-[EVIDENCE] Trying alternative: hook doCommand
-[EVIDENCE] JNICLibrary found via loader: dalvik.system.PathClassLoader[DexPathList[[zip file "/data/app/~~6o-1nPC0jEDWov9s3UP8Gw==/com.eg.android.AlipayGphone-wZhWOgDk12_qaqs6YojZFg==/lib/arm64/libsgmain.so"],nativeLibraryDirectories=[/data/app/~~6o-1nPC0jEDWov9s3UP8Gw==/com.eg.android.AlipayGphone-wZhWOgDk12_qaqs6YojZFg==/lib/arm64, /data/user/0/com.eg.android.AlipayGphone/app_SGLib/app_1773709757, /system/lib64, /system_ext/lib64]]]
-[EVIDENCE] Alt scan complete

@@ -1,2 +1,0 @@
-TypeError: cannot define variable 'hexdump'
-    at <eval> (/tmp/sm4_key_extract.js:1)

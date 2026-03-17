@@ -1,3 +1,11 @@
+// ============================================================================
+// FAIR USE NOTICE — Security Research
+// This file contains machine-generated pseudocode produced by Ghidra/radare2
+// decompilation of native binary code. It is NOT original source code.
+// Included solely for the purpose of documenting security vulnerabilities
+// affecting 1B+ users, under DMCA §1201(j) and EU Directive 2009/24/EC Art.6.
+// Original binary copyright: Ant Group Co., Ltd.
+// ============================================================================
 // === J2qaFN4xHz @ 0012b250 (16 bytes) — STRING DECRYPTION FUNCTION ===
 
 void J2qaFN4xHz(void)
