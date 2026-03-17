@@ -81,3 +81,45 @@ All security configurations fetched via `RVConfigService.getConfigWithProcessCac
 - Trade payment check enable/disable
 - FlowCustoms rules
 - Can be changed server-side without app update
+
+## Critical Update: sgmain SO Code NOT Encrypted
+
+### Discovery
+`libsgmainso-6.6.230507.so` was previously reported as "self-modifying ELF" requiring runtime dump. **This was incorrect.**
+
+**Actual state:**
+- Section headers: **intentionally corrupted** (sizes set to 0x10, addresses zeroed)
+- Program headers: **intact and valid** (LOAD0: 2MB r-x code segment)
+- Code segment: **NOT encrypted** — valid ARM64 instructions throughout
+- STRTAB: **intact** — JNI_OnLoad, RegisterExtForAndroid, LiteVM visible
+- Some strings: **encrypted** (especially in sgsecurity), but many readable in sgmain
+
+### Newly Found Strings in sgmain
+- `sgcookiecheck` — Cookie security validation
+- `uvm_sw2` — UVM (Universal VM) software v2
+- `wkcookiesync` — WebKit cookie synchronization  
+- `$tIsys_epolptrace_s` — Obfuscated ptrace anti-debug detection
+- `LiteVM` — AVMP bytecode VM identifier
+- `UVM_LD_LIBRARY_*` — UVM dynamic library loading (PREFIX/SUFFIX/EXTENSION/PATH)
+- `__uvm_call_registry_` — UVM native function registration
+- `__builtin_uvm_bind_native_callback` — UVM native callback binding
+- `[insndebug]` — Debug detection logging
+- `hja8796ac83accsgg84` — Hardcoded key/salt (ACCS related)
+- `ju38csh37822hf3hc` — Hardcoded key/salt
+- `uxd2dkwj294db3/4` — Hardcoded key/salt pair
+
+### Obfuscated Export Names
+- `HlupqL3ZAR`, `J2qaFN4xHz`, `KEl52mTtCb`, `pDhsAJkF7h` — randomized function names in .dynstr
+
+### Bypass for Section Header Corruption
+Use `r2 -e bin.segments=true` or `readelf -l` (program headers) instead of `readelf -S` (section headers).
+The code can be fully analyzed using segment-based loading.
+
+### sgsecurity vs sgmain
+| Property | sgmain | sgsecurity |
+|----------|--------|------------|
+| Code encrypted | **NO** | **NO** (same pattern) |
+| Strings encrypted | Partial (STRTAB intact, some .rodata encrypted) | **YES** (nearly all) |
+| Section headers | Corrupted | Corrupted |
+| Program headers | Valid | Valid |
+| Static analysis | **FULLY POSSIBLE** | Limited (strings obfuscated) |
