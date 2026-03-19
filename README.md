@@ -15,6 +15,15 @@ A comprehensive reverse engineering analysis of the SecurityGuard SDK embedded i
 - Confirmed absence of certificate pinning
 - Analyzed PatchProxy remote code modification capability
 
+
+## Academic Publication
+
+**Feng, J. (2026).** "Broken By Design: A Longitudinal Analysis of Cryptographic Failures in Alipay Mobile Payment Infrastructure." *IACR Cryptology ePrint Archive*, 2026/526.
+
+**URL:** [https://eprint.iacr.org/2026/526](https://eprint.iacr.org/2026/526)
+
+**Category:** Attacks and cryptanalysis | **Keywords:** MD5 collision, SHA-1, RSA-1024, APK signing, batch GCD, mobile payment security, cryptographic debt
+
 ## CVE References
 
 9 CVEs submitted to MITRE (Ticket #2005801), pending assignment:
