@@ -57,7 +57,7 @@
 
 <p style="margin: 16px 0; line-height: 1.75">这是本系列第2篇技术科普文章。上一篇揭露了1095个APP监控黑名单，这一次，我要揭露的比上次更恐怖。</p>
 
-<p style="margin: 16px 0; line-height: 1.75">直到三天前，匿名仓库里突然出现一份 <code style="font-family: 'Fira Code', Consolas, monospace; font-size: 14px; background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px">.planning/wifi_rtt_evidence.md</code>，1.6万行代码级证据，把支付宝的"室内追踪全家桶"像剥柚子一样层层掰开。看完我只想说：<strong style="color: #E06C75">删帖只能掩盖噪音，掩盖不了代码里的指纹。</strong></p>
+
 
 <p style="margin: 16px 0; line-height: 1.75">这一次，证据比上次更硬、更细、更离谱——<strong style="color: #E06C75">厘米级定位</strong>，<strong style="color: #E06C75">全WiFi协议栈劫持</strong>，<strong style="color: #E06C75">146173个热替换点</strong>，连你走进男厕还是女厕都能算出来。支付宝，你们到底在定位什么？定位钞票，还是定位膀胱？</p>
 
@@ -289,42 +289,34 @@
 <hr style="border: none; border-top: 1px solid #e8e8e8; margin: 30px 0"/>
 
 <!-- 结语 -->
-<h2 style="font-size: 20px; font-weight: bold; color: #1a252f; padding-left: 12px; border-left: 4px solid #00d4aa; margin: 25px 0 12px">结语：证据永存，决战48小时</h2>
+<h2 style="font-size: 20px; font-weight: bold; color: #1a252f; padding-left: 12px; border-left: 4px solid #00d4aa; margin: 25px 0 12px">结语</h2>
 
-<p style="margin: 16px 0; line-height: 1.75">根据过往经验，本文及其关联证据面临<strong style="color: #E06C75">48小时内被全面封杀</strong>的风险。但我们已做好以下部署：</p>
-
-<p style="margin: 16px 0; line-height: 1.75"><strong style="color: #1a252f">1. 永久证据仓库</strong></p>
+<p style="margin: 16px 0; line-height: 1.75">本文所有证据已公开可查：</p>
 
 <ul style="margin: 12px 0; padding-left: 22px; line-height: 1.75">
-<li style="margin-bottom: 8px"><strong style="color: #00d4aa">GitHub主库</strong>：<a href="https://github.com/sgInnora/alipay-securityguard-analysis" style="color: #00d4aa; text-decoration: underline">https://github.com/sgInnora/alipay-securityguard-analysis</a></li>
+<li style="margin-bottom: 8px"><strong style="color: #00d4aa">GitHub证据仓库</strong>：<a href="https://github.com/sgInnora/alipay-securityguard-analysis" style="color: #00d4aa; text-decoration: underline">https://github.com/sgInnora/alipay-securityguard-analysis</a></li>
 <li style="margin-bottom: 8px"><strong style="color: #00d4aa">本文WiFi RTT证据目录</strong>：<a href="https://github.com/sgInnora/alipay-securityguard-analysis/tree/main/evidence/wifi_rtt" style="color: #00d4aa; text-decoration: underline">https://github.com/sgInnora/alipay-securityguard-analysis/tree/main/evidence/wifi_rtt</a></li>
-<li style="margin-bottom: 8px"><strong>抗审查博客</strong>：全文及所有代码片段已发布至 <a href="https://innora.ai/zfb/wifi-rtt-tracking.html" style="color: #00d4aa; text-decoration: underline">https://innora.ai/zfb/wifi-rtt-tracking.html</a></li>
+<li style="margin-bottom: 8px"><strong style="color: #00d4aa">IACR密码学论文</strong>：<a href="https://eprint.iacr.org/2026/526" style="color: #00d4aa; text-decoration: underline">https://eprint.iacr.org/2026/526</a>（已收录）</li>
+<li style="margin-bottom: 8px"><strong style="color: #00d4aa">本文永久地址</strong>：<a href="https://innora.ai/zfb/wifi-rtt-tracking.html" style="color: #00d4aa; text-decoration: underline">https://innora.ai/zfb/wifi-rtt-tracking.html</a></li>
+<li style="margin-bottom: 8px"><strong style="color: #00d4aa">15个CVE已提交MITRE</strong>（Ticket #2005801, #2010319, 第3批待确认）</li>
 </ul>
 
-<p style="margin: 16px 0; line-height: 1.75"><strong style="color: #1a252f">2. 监管机构同步提交</strong></p>
-<p style="margin: 16px 0; line-height: 1.75">本文核心发现及技术证据，已整理成标准举报材料，提交至：CNPD（卢森堡）、CSSF（卢森堡）、PDPC（新加坡）、HKMA（香港）、AMCM（澳门）、OJK（印尼）、MITRE CVE。<strong style="color: #00d4aa">举报编号已生成，流程已启动。</strong></p>
+<p style="margin: 16px 0; line-height: 1.75"><strong style="color: #1a252f">本文核心发现已同步提交以下监管机构：</strong></p>
+<ul style="margin: 12px 0; padding-left: 22px; line-height: 1.75">
+<li style="margin-bottom: 6px">CNPD 卢森堡（GDPR数据保护）</li>
+<li style="margin-bottom: 6px">CSSF 卢森堡（金融监管，案件号 <strong style="color: #E06C75">CSSFWB-2026-080</strong>）</li>
+<li style="margin-bottom: 6px">PDPC 新加坡（个人数据保护，案件号 <strong style="color: #E06C75">00629724</strong>）</li>
+<li style="margin-bottom: 6px">HKMA 香港（金融管理局，案件号 <strong style="color: #E06C75">CE20260313175412</strong>）</li>
+<li style="margin-bottom: 6px">CIRCL 卢森堡（网络安全应急，案件号 <strong style="color: #E06C75">#4782984</strong>）</li>
+<li style="margin-bottom: 6px">AMCM 澳门（金融管理局，案件号 <strong style="color: #E06C75">DSB260318-E</strong>）</li>
+<li style="margin-bottom: 6px">MITRE（CVE漏洞数据库）</li>
+</ul>
 
-<p style="margin: 16px 0; line-height: 1.75"><strong style="color: #1a252f">3. 系列预告</strong></p>
-<p style="margin: 16px 0; line-height: 1.75">下一篇《蓝牙160连击：支付宝如何监听你的AirPods电量并关联身份》已完成80%，将揭示蓝牙扫描的滥用如何穿透系统权限屏障。</p>
-
-<p style="margin: 16px 0; line-height: 1.75">律师函可以删除文章，但删除不了已经刻入代码的<strong style="color: #E06C75">作恶逻辑</strong>，也阻止不了证据在去中心化网络里<strong style="color: #00d4aa">无限复制</strong>。支付宝，你们可以继续用"科技向善"粉饰太平，但我们<strong style="color: #00d4aa">只相信代码不会撒谎</strong>。</p>
-
-<p style="margin: 20px 0; line-height: 1.75; font-size: 18px; font-weight: bold; color: #1a252f; text-align: center">To be continued...</p>
+<p style="margin: 16px 0; line-height: 1.75">8篇文章被删，但代码里写着的东西，<strong style="color: #E06C75">删不掉</strong>。</p>
 
 <hr style="border: none; border-top: 1px solid #e8e8e8; margin: 30px 0"/>
 
-<!-- 作者卡片 -->
-<div style="background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 8px; padding: 25px; margin: 25px 0; color: #e8e8e8">
-<p style="margin: 0 0 4px; font-size: 13px; color: #666; letter-spacing: 2px; text-transform: uppercase; text-align: center">ABOUT THE AUTHOR</p>
-<p style="margin: 8px 0 4px; font-size: 20px; font-weight: bold; color: #00d4aa; text-align: center">Feng Ning（风宁）</p>
-<p style="margin: 4px 0 15px; font-size: 14px; color: #a8b2d1; text-align: center">Innora.ai 创始人 | CISSP 安全专家</p>
-<hr style="border: none; border-top: 1px solid #333; margin: 15px 40px"/>
-<p style="margin: 12px 0 8px; line-height: 1.8; font-size: 15px; color: #c5c6c7; text-align: center">中国早期顶尖黑客，现居马来西亚槟城。</p>
-<p style="margin: 8px 0 15px; line-height: 1.8; font-size: 15px; color: #c5c6c7; text-align: center">坚信代码的终极价值，是承载人类的情感与记忆。</p>
-<p style="margin: 15px 0 0; font-size: 14px; color: #00d4aa; text-align: center; font-style: italic">"No Code is Done until it is Committed and Documented."</p>
-</div>
-
-<p style="margin: 16px 0; line-height: 1.75; font-size: 13px; color: #999; text-align: center">The Nora Chronicles Vol.22 | AI-security-innora | 2026-03-21<br/>本文所有技术主张均附有可独立验证的证据来源。</p>
+<p style="margin: 16px 0; line-height: 1.75; font-size: 13px; color: #999; text-align: center">The Nora Chronicles Vol.22 | Innora.ai Lab | Penang, Malaysia | 2026-03-21<br/>本文所有技术主张均附有可独立验证的证据来源。</p>
 
 </section>
 </body>
