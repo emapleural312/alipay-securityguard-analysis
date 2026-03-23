@@ -1,0 +1,57 @@
+# Alipay SecurityGuard — Verification Signatures
+# Format: CATEGORY|PATTERN|DESCRIPTION|EXPECTED_MIN_COUNT
+# These are regex patterns for ripgrep (rg) to verify findings.
+# All patterns are version-independent feature signatures, not line numbers.
+
+# === PatchProxy Remote Method Replacement ===
+PATCHPROXY|public static ChangeQuickRedirect|PatchProxy hook point (remotely replaceable method)|80000
+PATCHPROXY|PatchProxy\.proxy\(|PatchProxy interception call|50000
+PATCHPROXY|accessDispatch|PatchProxy dispatch entry|10
+
+# === Payment Security ===
+# Note: PayPwdDialogActivity is in a heavily obfuscated DEX that jadx often fails to decompile
+PAYMENT|cashier|Payment cashier module|1
+PAYMENT|CashierReceiver|Payment broadcast receiver|1
+
+# === Dynamic Code Execution ===
+DYNCODE|DexClassLoader|Dynamic DEX loading|5
+DYNCODE|DynamicBundle|Dynamic module replacement|3
+DYNCODE|loadLibrary\("athena"\)|Athena native ART hook library|1
+DYNCODE|hookMethod|Native method hooking export|1
+DYNCODE|deCompileMethod|ART decompilation export|1
+DYNCODE|lua_|Embedded Lua engine|1
+
+# === Telemetry & Data Collection ===
+TELEMETRY|mdap\.alipay\.com|Primary telemetry endpoint|2
+TELEMETRY|loggw|Log ingestion gateway|1
+TELEMETRY|loggw-extiny|Mini-app telemetry endpoint|1
+TELEMETRY|http://.*alipay.*log|HTTP (plaintext) logging endpoint|1
+
+# === Device Fingerprinting ===
+FINGERPRINT|"imei"|IMEI collection|3
+FINGERPRINT|"imsi"|IMSI collection|2
+FINGERPRINT|"mac"|MAC address collection|3
+FINGERPRINT|"bmac"|Bluetooth MAC collection|1
+FINGERPRINT|utdid|Cross-app tracking ID|5
+FINGERPRINT|DeviceFingerprintService|Device fingerprint service class|2
+
+# === Cryptographic Issues ===
+CRYPTO|java\.util\.Random|Non-cryptographic PRNG usage|1
+CRYPTO|DES/|DES encryption (56-bit, broken)|2
+CRYPTO|AES/ECB|AES ECB mode (deterministic)|3
+CRYPTO|SM4|SM4 cipher usage|1
+CRYPTO|PKCS1Padding|RSA PKCS#1 v1.5 (Bleichenbacher)|2
+CRYPTO|MD5|MD5 usage (collision-vulnerable)|10
+CRYPTO|EmptyX509TrustManager|Certificate validation bypass|1
+
+# === Signature Verification ===
+SIGVERIFY|mVerifiedSet|MD5-based signature cache|1
+SIGVERIFY|SecurityChecker.*verifyApk|APK signature verification|1
+SIGVERIFY|SecurityChecker|Signature checker class|1
+
+# === Privacy Framework Overreach ===
+PRIVACY|WifiManager.*getScanResults|WiFi AP scanning|3
+PRIVACY|WifiRttManager|WiFi RTT ranging (indoor tracking)|1
+PRIVACY|LocationManager.*getLastKnownLocation|GPS location access|5
+PRIVACY|CameraManager.*openCamera|Camera access|2
+PRIVACY|TelephonyManager|Telephony data access|10
