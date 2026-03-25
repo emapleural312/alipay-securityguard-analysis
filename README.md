@@ -12,9 +12,36 @@
 
 > **Disclaimer**: This research is conducted for educational and security research purposes only. All trademarks are property of their respective owners. Findings were reported to the vendor via responsible disclosure.
 
+## Responsible Disclosure Timeline
+
+| Date | Event |
+|------|-------|
+| 2024 Q1-Q2 | Initial analysis of SecurityGuard v2 SDK |
+| 2025 Q3-Q4 | Deep analysis of cryptographic implementations, native code, privacy mechanisms |
+| 2026-02-25 | Report submitted to vendor via AntSRC |
+| 2026-03-10 | Vendor response: "normal function" |
+| 2026-03-12 | First MITRE CVE submission (Ticket #2005801) |
+| 2026-03-19 | IACR ePrint paper published ([2026/526](https://eprint.iacr.org/2026/526)) |
+| 2026-03-23 | Zenodo permanent archive ([DOI: 10.5281/zenodo.19186848](https://zenodo.org/records/19186848)) |
+| 2026-03-12 to 03-24 | Total: 36 CVE reports submitted across 11 MITRE tickets |
+| 2026-03 onwards | Regulatory authorities in 9+ countries/regions briefed |
+
+Full timeline: [innora.ai/zfb/disclosure-timeline.html](https://innora.ai/zfb/disclosure-timeline.html)
+
+## External Verification & Publications
+
+| Resource | Link | Status |
+|----------|------|--------|
+| IACR ePrint | [2026/526](https://eprint.iacr.org/2026/526) | Published |
+| Zenodo Archive | [DOI: 10.5281/zenodo.19186848](https://zenodo.org/records/19186848) | Permanent |
+| Packet Storm | [#217089](https://packetstormsecurity.com/files/217089) | Published |
+| Docker Verification | See below | 37/37 PASS |
+| Full Technical Blog | [innora.ai/zfb](https://innora.ai/zfb/) | Live |
+| Disclosure Timeline | [innora.ai/zfb/disclosure-timeline.html](https://innora.ai/zfb/disclosure-timeline.html) | Live |
+
 ## Independent Verification (Docker)
 
-You don't have to trust us. Verify everything yourself in ~15 minutes:
+All findings are independently verifiable. To reproduce results in ~15 minutes:
 
 ```bash
 # Option A: Docker (recommended — handles jadx memory for 210MB APK)
